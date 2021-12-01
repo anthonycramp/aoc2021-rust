@@ -1,0 +1,76 @@
+const INPUT: &str = include_str!("day01.txt");
+const TEST_INPUT: &str = include_str!("day01_test.txt");
+
+fn main() {
+    println!("Day NN Part 1: {:?}", part1(INPUT));
+    println!("Day NN Part 2: {:?}", part2(INPUT));
+}
+
+// replace return type as required by the problem
+fn part1(input: &str) -> i32 {
+    let depths: Vec<i32> = input
+        .lines()
+        .map(|s| s.trim())
+        .map(|s| s.parse::<i32>().unwrap())
+        .collect();
+    let mut depths_iter = depths.iter();
+    let mut prev = depths_iter.next();
+    let mut next = depths_iter.next();
+
+    let mut count = 0;
+
+    loop {
+        match (prev, next) {
+            (Some(a), Some(b)) => {
+                if a < b {
+                    count += 1
+                }
+            }
+            _ => break,
+        }
+
+        prev = next;
+        next = depths_iter.next();
+    }
+
+    count
+}
+
+// replace return type as required by the problem
+fn part2(input: &str) -> i32 {
+    0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test_support::test_support::TestCase;
+
+    #[test]
+    fn test_part1() {
+        let test_cases = [TestCase {
+            input: TEST_INPUT,
+            expected: 7,
+        }];
+        for TestCase { input, expected } in test_cases.iter() {
+            assert_eq!(part1(*input), *expected);
+        }
+    }
+
+    #[test]
+    fn test_part2() {
+        let test_cases = [
+            TestCase {
+                input: "...",
+                expected: 123,
+            },
+            TestCase {
+                input: "abc",
+                expected: 345,
+            },
+        ];
+        for TestCase { input, expected } in test_cases.iter() {
+            assert_eq!(part2(*input), *expected);
+        }
+    }
+}
