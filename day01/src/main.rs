@@ -43,9 +43,30 @@ fn part1(input: &str) -> i32 {
     count_increases(&parse_input(input))
 }
 
+fn sum_three_element_windows(input: &[i32]) -> Vec<i32> {
+    let mut iter = input.iter();
+    let mut one = iter.next();
+    let mut two = iter.next();
+    let mut three = iter.next();
+    let mut ret = vec![];
+
+    loop {
+        match (one, two, three) {
+            (Some(a), Some(b), Some(c)) => ret.push(a + b + c),
+            _ => break,
+        }
+
+        one = two;
+        two = three;
+        three = iter.next();
+    }
+
+    ret
+}
+
 // replace return type as required by the problem
 fn part2(input: &str) -> i32 {
-    0
+    count_increases(&sum_three_element_windows(&parse_input(input)))
 }
 
 #[cfg(test)]
