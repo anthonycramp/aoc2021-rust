@@ -1,6 +1,6 @@
-# Advent of Code 2015 in Rust
+# Advent of Code in Rust
 
-Rust solutions for Advent of Code 2015 problems
+Rust solutions for Advent of Code problems
 
 ## Setting up for a new day
 
