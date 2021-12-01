@@ -14,12 +14,10 @@ fn parse_input(input: &str) -> Vec<i32> {
         .collect()
 }
 
-// replace return type as required by the problem
-fn part1(input: &str) -> i32 {
-    let depths = parse_input(input);
-    let mut depths_iter = depths.iter();
-    let mut prev = depths_iter.next();
-    let mut next = depths_iter.next();
+fn count_increases(input: &[i32]) -> i32 {
+    let mut input_iter = input.iter();
+    let mut prev = input_iter.next();
+    let mut next = input_iter.next();
 
     let mut count = 0;
 
@@ -34,10 +32,15 @@ fn part1(input: &str) -> i32 {
         }
 
         prev = next;
-        next = depths_iter.next();
+        next = input_iter.next();
     }
 
     count
+}
+
+// replace return type as required by the problem
+fn part1(input: &str) -> i32 {
+    count_increases(&parse_input(input))
 }
 
 // replace return type as required by the problem
