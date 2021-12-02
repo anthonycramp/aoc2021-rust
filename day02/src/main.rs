@@ -8,7 +8,24 @@ fn main() {
 
 // replace return type as required by the problem
 fn part1(input: &str) -> i32 {
-    0
+    let mut horizontal = 0;
+    let mut depth = 0;
+
+    for line in input.lines() {
+        let mut command = line.split(" ");
+        let operation = command.next();
+        let distance = command.next().unwrap().parse::<i32>().unwrap();
+
+        match operation {
+            Some("forward") => horizontal += distance,
+            Some("down") => depth += distance,
+            Some("up") => depth -= distance,
+            Some(c) => println!("Uknown command {}", c),
+            _ => panic!("dang"),
+        }
+    }
+
+    horizontal * depth
 }
 
 // replace return type as required by the problem
