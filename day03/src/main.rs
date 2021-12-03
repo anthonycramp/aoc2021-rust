@@ -1,5 +1,4 @@
 const INPUT: &str = include_str!("day03.txt");
-const TEST_INPUT: &str = include_str!("day03_test.txt");
 
 fn main() {
     println!("Day 03 Part 1: {:?}", part1(INPUT));
@@ -45,17 +44,13 @@ fn part1(input: &str) -> i32 {
 
 // replace return type as required by the problem
 fn part2(input: &str) -> i32 {
-    let mut oxygen_generator_rating = String::from("");
-    let mut co2_scubber_rating = String::from("");
-
     let mut lines: Vec<String> = input.lines().map(String::from).collect();
 
     let mut binary_index = 0;
 
-    loop {
+    let oxygen_generator_rating = loop {
         if lines.len() == 1 {
-            oxygen_generator_rating = lines[0].clone();
-            break;
+            break lines[0].clone();
         }
         let mut number_of_records = 0;
         let mut number_of_ones = 0;
@@ -78,14 +73,13 @@ fn part2(input: &str) -> i32 {
             .collect();
 
         binary_index += 1;
-    }
+    };
 
     binary_index = 0;
     lines = input.lines().map(String::from).collect();
-    loop {
+    let co2_scrubber_rating = loop {
         if lines.len() == 1 {
-            co2_scubber_rating = lines[0].clone();
-            break;
+            break lines[0].clone();
         }
         let mut number_of_records = 0;
         let mut number_of_ones = 0;
@@ -108,16 +102,17 @@ fn part2(input: &str) -> i32 {
             .collect();
 
         binary_index += 1;
-    }
+    };
 
     let oxygen_generator_rating = i32::from_str_radix(&oxygen_generator_rating, 2).unwrap();
-    let co2_scubber_rating = i32::from_str_radix(&co2_scubber_rating, 2).unwrap();
+    let co2_scubber_rating = i32::from_str_radix(&co2_scrubber_rating, 2).unwrap();
 
     oxygen_generator_rating * co2_scubber_rating
 }
 
 #[cfg(test)]
 mod tests {
+    const TEST_INPUT: &str = include_str!("day03_test.txt");
     use super::*;
     use test_support::test_support::TestCase;
 
