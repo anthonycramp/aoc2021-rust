@@ -7,28 +7,26 @@ fn main() {
 
 // replace return type as required by the problem
 fn part1(input: &str) -> i32 {
-    let lines = input.lines();
-    let mut number_of_records = 0;
-    let mut gamma_rate = String::from("");
-    let mut epsilon_rate = String::from("");
+    let lines: Vec<&str> = input.lines().collect();
+    let number_of_records = lines.len();
+    let record_size = lines[0].len();
 
-    let mut one_counts = vec![];
+    let mut one_counts = vec![0; record_size];
 
     for line in lines {
         for (i, c) in line.chars().enumerate() {
-            if one_counts.len() <= i {
-                one_counts.push(0);
-            }
-
             if c == '1' {
                 one_counts[i] += 1;
             }
         }
-        number_of_records += 1;
     }
 
-    for count in one_counts {
-        if count <= number_of_records / 2 {
+    let mut gamma_rate = String::from("");
+    let mut epsilon_rate = String::from("");
+
+    for one_count in one_counts {
+        let zero_count = number_of_records - one_count;
+        if one_count <= zero_count {
             epsilon_rate += "1";
             gamma_rate += "0";
         } else {
