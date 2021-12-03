@@ -41,13 +41,14 @@ fn part2(input: &str) -> i32 {
 
 #[cfg(test)]
 mod tests {
+    // const TEST_INPUT: &str = include_str!("dayNN_test.txt");
     use super::*;
     use test_support::test_support::TestCase;
 
     #[test]
     fn test_part1() {
         let test_cases = [
-            TestCase { input: "...", expected: 123 },
+            TestCase { input: TEST_INPUT, expected: 123 },
             TestCase { input: "abc", expected: 345 },
         ];
         for TestCase{input, expected} in test_cases.iter() {
@@ -58,7 +59,7 @@ mod tests {
     #[test]
     fn test_part2() {
         let test_cases = [
-            TestCase { input: "...", expected: 123 },
+            TestCase { input: TEST_INPUT, expected: 123 },
             TestCase { input: "abc", expected: 345 },
         ];
         for TestCase{input, expected} in test_cases.iter() {
