@@ -1,5 +1,4 @@
 const INPUT: &str = include_str!("day01.txt");
-const TEST_INPUT: &str = include_str!("day01_test.txt");
 
 fn main() {
     println!("Day NN Part 1: {:?}", part1(INPUT));
@@ -21,14 +20,9 @@ fn count_increases(input: &[i32]) -> i32 {
 
     let mut count = 0;
 
-    loop {
-        match (prev, next) {
-            (Some(a), Some(b)) => {
-                if a < b {
-                    count += 1
-                }
-            }
-            _ => break,
+    while let (Some(a), Some(b)) = (prev, next) {
+        if a < b {
+            count += 1;
         }
 
         prev = next;
@@ -50,12 +44,8 @@ fn sum_three_element_windows(input: &[i32]) -> Vec<i32> {
     let mut three = iter.next();
     let mut ret = vec![];
 
-    loop {
-        match (one, two, three) {
-            (Some(a), Some(b), Some(c)) => ret.push(a + b + c),
-            _ => break,
-        }
-
+    while let (Some(a), Some(b), Some(c)) = (one, two, three) {
+        ret.push(a + b + c);
         one = two;
         two = three;
         three = iter.next();
@@ -71,6 +61,7 @@ fn part2(input: &str) -> i32 {
 
 #[cfg(test)]
 mod tests {
+    const TEST_INPUT: &str = include_str!("day01_test.txt");
     use super::*;
     use test_support::test_support::TestCase;
 
