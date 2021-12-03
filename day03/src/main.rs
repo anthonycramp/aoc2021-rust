@@ -42,30 +42,40 @@ fn part1(input: &str) -> i32 {
     gamma_rate * epsilon_rate
 }
 
-// replace return type as required by the problem
-fn part2(input: &str) -> i32 {
-    let mut lines: Vec<String> = input.lines().map(String::from).collect();
+enum Device {
+    OxygenGenerator,
+    Co2Scrubber,
+}
+
+fn get_device_rating(diagnostics: &str, device: Device) -> i32 {
+    let mut lines: Vec<String> = diagnostics.lines().map(String::from).collect();
 
     let mut binary_index = 0;
 
-    let oxygen_generator_rating = loop {
-        if lines.len() == 1 {
+    let device_rating = loop {
+        let number_of_reports = lines.len();
+        if number_of_reports == 1 {
             break lines[0].clone();
         }
-        let mut number_of_records = 0;
-        let mut number_of_ones = 0;
-        for line in &lines {
-            if line.chars().nth(binary_index).unwrap() == '1' {
-                number_of_ones += 1;
-            }
-            number_of_records += 1;
-        }
 
-        let number_of_zeros = number_of_records - number_of_ones;
-        let mut filter_char = '0';
-        if number_of_ones >= number_of_zeros {
-            filter_char = '1';
-        }
+        let number_of_ones = lines
+            .iter()
+            .filter(|l| l.chars().nth(binary_index).unwrap() == '1')
+            .count();
+        let number_of_zeros = number_of_reports - number_of_ones;
+
+        let filter_char = if number_of_ones >= number_of_zeros {
+            match device {
+                Device::OxygenGenerator => '1',
+                Device::Co2Scrubber => '0',
+            }
+        } else {
+            match device {
+                Device::OxygenGenerator => '0',
+                Device::Co2Scrubber => '1',
+            }
+        };
+
         lines = lines
             .iter()
             .filter(|l| l.chars().nth(binary_index).unwrap() == filter_char)
@@ -75,39 +85,15 @@ fn part2(input: &str) -> i32 {
         binary_index += 1;
     };
 
-    binary_index = 0;
-    lines = input.lines().map(String::from).collect();
-    let co2_scrubber_rating = loop {
-        if lines.len() == 1 {
-            break lines[0].clone();
-        }
-        let mut number_of_records = 0;
-        let mut number_of_ones = 0;
-        for line in &lines {
-            if line.chars().nth(binary_index).unwrap() == '1' {
-                number_of_ones += 1;
-            }
-            number_of_records += 1;
-        }
+    i32::from_str_radix(&device_rating, 2).unwrap()
+}
 
-        let number_of_zeros = number_of_records - number_of_ones;
-        let mut filter_char = '1';
-        if number_of_ones >= number_of_zeros {
-            filter_char = '0';
-        }
-        lines = lines
-            .iter()
-            .filter(|l| l.chars().nth(binary_index).unwrap() == filter_char)
-            .cloned()
-            .collect();
+// replace return type as required by the problem
+fn part2(input: &str) -> i32 {
+    let oxygen_generator_rating = get_device_rating(input, Device::OxygenGenerator);
+    let co2_scrubber_rating = get_device_rating(input, Device::Co2Scrubber);
 
-        binary_index += 1;
-    };
-
-    let oxygen_generator_rating = i32::from_str_radix(&oxygen_generator_rating, 2).unwrap();
-    let co2_scubber_rating = i32::from_str_radix(&co2_scrubber_rating, 2).unwrap();
-
-    oxygen_generator_rating * co2_scubber_rating
+    oxygen_generator_rating * co2_scrubber_rating
 }
 
 #[cfg(test)]
