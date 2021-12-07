@@ -5,102 +5,117 @@ fn main() {
     println!("Day NN Part 2: {:?}", part2(INPUT));
 }
 
-enum LineSegmentOrientation {
-    Horizontal,
-    Vertical,
-    Diagonal,
+#[derive(Debug, Clone, PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
 }
 
-struct OrthogonalLineSegment {
-    min: usize,
-    max: usize,
-    fixed: usize,
-    orientation: LineSegmentOrientation,
-}
-
-impl OrthogonalLineSegment {
-    fn new(p1: usize, p2: usize, fixed: usize, orientation: LineSegmentOrientation) -> Self {
-        if p1 < p2 {
-            Self {
-                min: p1,
-                max: p2,
-                fixed,
-                orientation,
-            }
-        } else {
-            Self {
-                min: p2,
-                max: p1,
-                fixed,
-                orientation,
-            }
+impl From<&str> for Point {
+    fn from(input: &str) -> Self {
+        let mut params = input.split(',');
+        Point {
+            x: params.next().unwrap().parse().unwrap(),
+            y: params.next().unwrap().parse().unwrap(),
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct LineSegment {
+    p1: Point,
+    p2: Point,
+}
+
+impl From<&str> for LineSegment {
+    fn from(input: &str) -> Self {
+        let mut params = input.split_ascii_whitespace();
+
+        LineSegment {
+            p1: Point::from(params.next().unwrap()),
+            p2: Point::from(params.nth(1).unwrap()),
+        }
+    }
+}
+
+impl LineSegment {
+    fn draw(&self, sea_floor: &mut SeaFloor) {
+        let delta_x: i32 = if self.p2.x < self.p1.x {
+            -1
+        } else if self.p2.x > self.p1.x {
+            1
+        } else {
+            0
+        };
+        let delta_y: i32 = if self.p2.y < self.p1.y {
+            -1
+        } else if self.p2.y > self.p1.y {
+            1
+        } else {
+            0
+        };
+        let mut p = self.p1.clone();
+        while p != self.p2 {
+            sea_floor.draw(&p);
+            p.x += delta_x;
+            p.y += delta_y;
+        }
+        sea_floor.draw(&self.p2);
+    }
+
+    fn is_horizontal(&self) -> bool {
+        self.p1.y == self.p2.y
+    }
+
+    fn is_vertical(&self) -> bool {
+        self.p1.x == self.p2.x
+    }
+}
+
+struct SeaFloor {
+    sea_floor: Vec<i32>,
+    width: i32,
+}
+
+impl Default for SeaFloor {
+    fn default() -> Self {
+        let width = 1000;
+        let height = 1000;
+        Self {
+            sea_floor: vec![0; (width * height).try_into().unwrap()],
+            width,
+        }
+    }
+}
+
+impl SeaFloor {
+    fn draw(&mut self, p: &Point) {
+        let pixel: i32 = p.y * self.width + p.x;
+        dbg!(p, pixel);
+        self.sea_floor[pixel as usize] += 1;
+    }
+
+    fn count(&self) -> i32 {
+        self.sea_floor
+            .iter()
+            .filter(|&p| *p >= 2)
+            .count()
+            .try_into()
+            .unwrap()
     }
 }
 
 // replace return type as required by the problem
 fn part1(input: &str) -> i32 {
-    let mut line_segments = vec![];
-
-    for line in input.lines() {
-        let mut splits = line.split_ascii_whitespace();
-        let p1 = splits.next().unwrap();
-        let _ = splits.next();
-        let p2 = splits.next().unwrap();
-
-        let mut p1 = p1.split(',');
-        let x1 = p1.next().unwrap().parse().unwrap();
-        let y1 = p1.next().unwrap().parse().unwrap();
-
-        let mut p2 = p2.split(',');
-        let x2 = p2.next().unwrap().parse().unwrap();
-        let y2 = p2.next().unwrap().parse().unwrap();
-
-        if x1 == x2 {
-            line_segments.push(OrthogonalLineSegment::new(
-                y1,
-                y2,
-                x1,
-                LineSegmentOrientation::Vertical,
-            ));
-        } else if y1 == y2 {
-            line_segments.push(OrthogonalLineSegment::new(
-                x1,
-                x2,
-                y1,
-                LineSegmentOrientation::Horizontal,
-            ));
-        }
-    }
-
-    let mut min_x = 0;
-    let mut max_x = 1000;
-    let mut min_y = 0;
-    let mut max_y = 1000;
-
-    dbg!(min_y, max_y, min_x, max_x);
-    let rows = max_y - min_y + 1;
-    let cols = max_x - min_x + 1;
-    dbg!(rows, cols);
-    let mut sea_floor = vec![0; rows * cols];
+    let line_segments: Vec<LineSegment> = input.lines().map(LineSegment::from).collect();
+    let mut sea_floor = SeaFloor::default();
 
     for line_segment in &line_segments {
-        for i in line_segment.min..=line_segment.max {
-            match line_segment.orientation {
-                LineSegmentOrientation::Horizontal => {
-                    let pixel = line_segment.fixed * cols + i;
-                    // dbg!(pixel);
-                    sea_floor[pixel] += 1;
-                }
-                LineSegmentOrientation::Vertical => {
-                    sea_floor[i * cols + line_segment.fixed] += 1;
-                }
-                _ => (),
-            }
+        if line_segment.is_horizontal() || line_segment.is_vertical() {
+            line_segment.draw(&mut sea_floor);
         }
     }
-
-    sea_floor.iter().filter(|&n| *n >= 2).count() as i32
+    sea_floor.count()
 }
 
 // replace return type as required by the problem
