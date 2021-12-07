@@ -119,7 +119,13 @@ fn part1(input: &str) -> i32 {
 
 // replace return type as required by the problem
 fn part2(input: &str) -> i32 {
-    0
+    let line_segments: Vec<LineSegment> = input.lines().map(LineSegment::from).collect();
+    let mut sea_floor = SeaFloor::default();
+
+    for line_segment in &line_segments {
+        line_segment.draw(&mut sea_floor);
+    }
+    sea_floor.count()
 }
 
 #[cfg(test)]
@@ -143,7 +149,7 @@ mod tests {
     fn test_part2() {
         let test_cases = [TestCase {
             input: TEST_INPUT,
-            expected: 123,
+            expected: 12,
         }];
         for TestCase { input, expected } in test_cases.iter() {
             assert_eq!(part2(*input), *expected);
