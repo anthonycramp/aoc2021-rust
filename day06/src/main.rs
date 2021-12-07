@@ -5,37 +5,48 @@ fn main() {
     println!("Day 06 Part 2: {:?}", part2(INPUT));
 }
 
-// replace return type as required by the problem
-fn part1(input: &str) -> i32 {
-    let mut lantern_fish_lives: Vec<i32> = input
+fn parse_initial_lantern_fish(input: &str) -> Vec<usize> {
+    input
         .lines()
         .next()
         .unwrap()
         .split(',')
         .map(|n| n.parse().unwrap())
-        .collect();
+        .collect()
+}
 
-    for _ in 0..80 {
-        let mut new_lantern_fish = 0;
-        for lantern_fish_life in &mut lantern_fish_lives {
-            if *lantern_fish_life == 0 {
-                *lantern_fish_life = 6;
-                new_lantern_fish += 1;
-            } else {
-                *lantern_fish_life -= 1;
+fn create_lantern_fish(lantern_fish_lives: &[usize], days: usize) -> i64 {
+    let mut new_lantern_fish_per_day = vec![0; days];
+
+    let number_of_weeks: usize = days / 7;
+    for lantern_fish_life in lantern_fish_lives {
+        for i in 0..=number_of_weeks {
+            let next_gen = lantern_fish_life + i * 7;
+            if next_gen < days {
+                new_lantern_fish_per_day[next_gen] += 1;
             }
         }
+    }
 
-        for _ in 0..new_lantern_fish {
-            lantern_fish_lives.push(8);
+    for i in 0..days {
+        let mut next_gen = i + 9;
+        while next_gen < days {
+            new_lantern_fish_per_day[next_gen] += new_lantern_fish_per_day[i];
+            next_gen += 7;
         }
     }
-    lantern_fish_lives.len() as i32
+    let new_lantern_fish: i64 = new_lantern_fish_per_day.iter().sum();
+    lantern_fish_lives.len() as i64 + new_lantern_fish
 }
 
 // replace return type as required by the problem
-fn part2(input: &str) -> i32 {
-    0
+fn part1(input: &str) -> i64 {
+    create_lantern_fish(&parse_initial_lantern_fish(input), 80)
+}
+
+// replace return type as required by the problem
+fn part2(input: &str) -> i64 {
+    create_lantern_fish(&parse_initial_lantern_fish(input), 256)
 }
 
 #[cfg(test)]
@@ -59,7 +70,7 @@ mod tests {
     fn test_part2() {
         let test_cases = [TestCase {
             input: TEST_INPUT,
-            expected: 123,
+            expected: 26984457539,
         }];
         for TestCase { input, expected } in test_cases.iter() {
             assert_eq!(part2(*input), *expected);
