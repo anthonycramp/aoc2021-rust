@@ -91,7 +91,6 @@ impl Default for SeaFloor {
 impl SeaFloor {
     fn draw(&mut self, p: &Point) {
         let pixel: i32 = p.y * self.width + p.x;
-        dbg!(p, pixel);
         self.sea_floor[pixel as usize] += 1;
     }
 
