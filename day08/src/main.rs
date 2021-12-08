@@ -28,9 +28,62 @@ fn part1(input: &str) -> i32 {
     counts.iter().sum::<i32>() as i32
 }
 
+use std::collections::HashMap;
+
+fn decode_signals(input: &str) -> HashMap<char, char> {
+    HashMap::new()
+}
+
+fn read_display(display: &str, mapping: &HashMap<char, char>) -> String {
+    let mut display_string = String::with_capacity(display.len());
+    for c in display.chars() {
+        display_string += &String::from(*mapping.get(&c).unwrap());
+    }
+
+    let mut sorting_vec: Vec<char> = display_string.chars().collect();
+    sorting_vec.sort_unstable();
+    let display_string: String = sorting_vec.into_iter().collect();
+
+    match display_string.as_str() {
+        "abcefg" => String::from("0"),
+        "cf" => String::from("1"),
+        "acdeg" => String::from("2"),
+        "acdfg" => String::from("3"),
+        "bcdf" => String::from("4"),
+        "abdfg" => String::from("5"),
+        "abdefg" => String::from("6"),
+        "acf" => String::from("7"),
+        "abcdefg" => String::from("8"),
+        "abcdfg" => String::from("9"),
+        _ => panic!(
+            "Unknown display string {} mapped to {}",
+            display, &display_string
+        ),
+    }
+}
+
 // replace return type as required by the problem
 fn part2(input: &str) -> i32 {
-    0
+    let mut sum_of_all_outputs = 0;
+
+    let lines = input.lines();
+    for line in lines {
+        let mut input_output = line.split(" | ");
+        let input_signals = input_output.next().unwrap();
+        let output_segments = input_output.next().unwrap();
+
+        let wire_segment_mapping = decode_signals(input_signals);
+
+        let mut output_value = String::with_capacity(4);
+        for output_segment in output_segments.split_ascii_whitespace() {
+            output_value += &read_display(output_segment, &wire_segment_mapping);
+        }
+
+        let output_value = output_value.parse::<i32>().unwrap();
+        sum_of_all_outputs += output_value;
+    }
+
+    sum_of_all_outputs
 }
 
 #[cfg(test)]
