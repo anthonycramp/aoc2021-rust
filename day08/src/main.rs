@@ -29,9 +29,78 @@ fn part1(input: &str) -> i32 {
 }
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 fn decode_signals(input: &str) -> HashMap<char, char> {
-    HashMap::new()
+    let mut one: HashSet<char> = HashSet::new();
+    let mut four: HashSet<char> = HashSet::new();
+    let mut seven: HashSet<char> = HashSet::new();
+    let mut eight: HashSet<char> = HashSet::new();
+    let mut five_segments: Vec<HashSet<char>> = vec![];
+    let mut six_segments: Vec<HashSet<char>> = vec![];
+
+    for signal in input.split_ascii_whitespace() {
+        let hashed_signal = signal.chars().collect::<HashSet<char>>();
+        match signal.len() {
+            2 => one = hashed_signal,
+            3 => seven = hashed_signal,
+            4 => four = hashed_signal,
+            5 => five_segments.push(hashed_signal),
+            6 => six_segments.push(hashed_signal),
+            7 => eight = hashed_signal,
+            _ => (),
+        }
+    }
+
+    let mut mapping = HashMap::new();
+
+    let a_wire = seven.difference(&one).next().unwrap();
+    mapping.insert(*a_wire, 'a');
+
+    let mut three: HashSet<char> = HashSet::new();
+
+    for five_segment in &five_segments {
+        if one.is_subset(five_segment) {
+            three = five_segment.clone();
+            let three_without_one: HashSet<_> = three.difference(&one).copied().collect();
+            let d_signal: HashSet<_> = three_without_one.intersection(&four).copied().collect();
+            let d_wire = d_signal.iter().next().unwrap();
+            mapping.insert(*d_wire, 'd');
+            let four_without_one: HashSet<_> = four.difference(&one).copied().collect();
+            let b_signal: HashSet<_> = four_without_one.difference(&d_signal).copied().collect();
+            let b_wire = b_signal.iter().next().unwrap();
+            mapping.insert(*b_wire, 'b');
+            break;
+        }
+    }
+
+    let mut five: HashSet<char> = HashSet::new();
+
+    let abd: HashSet<_> = mapping.keys().copied().collect();
+    for five_segment in &five_segments {
+        if abd.is_subset(&five_segment) {
+            five = five_segment.clone();
+            let f_signal: HashSet<_> = five.intersection(&one).copied().collect();
+            let f_wire = f_signal.iter().next().unwrap();
+            mapping.insert(*f_wire, 'f');
+            let mut abdf: HashSet<_> = abd.clone();
+            abdf.insert(*f_wire);
+            let g_signal: HashSet<_> = five.difference(&abdf).copied().collect();
+            let g_wire = g_signal.iter().next().unwrap();
+            mapping.insert(*g_wire, 'g');
+            let c_signal: HashSet<_> = one.difference(&f_signal).copied().collect();
+            let c_wire = c_signal.iter().next().unwrap();
+            mapping.insert(*c_wire, 'c');
+            break;
+        }
+    }
+
+    let abcdfg: HashSet<char> = mapping.keys().copied().collect();
+    let e_signal: HashSet<_> = eight.difference(&abcdfg).copied().collect();
+    let e_wire = e_signal.iter().next().unwrap();
+    mapping.insert(*e_wire, 'e');
+
+    mapping
 }
 
 fn read_display(display: &str, mapping: &HashMap<char, char>) -> String {
@@ -100,6 +169,18 @@ mod tests {
         }];
         for TestCase { input, expected } in test_cases.iter() {
             assert_eq!(part1(*input), *expected);
+        }
+    }
+
+    #[test]
+    fn test_part2_single_entry() {
+        let input = "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe";
+        let test_cases = [TestCase {
+            input: input,
+            expected: 8394,
+        }];
+        for TestCase { input, expected } in test_cases.iter() {
+            assert_eq!(part2(*input), *expected);
         }
     }
 
