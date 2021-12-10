@@ -5,9 +5,42 @@ fn main() {
     println!("Day 10 Part 2: {:?}", part2(INPUT));
 }
 
+fn score(c: char) -> u32 {
+    match c {
+        ')' => 3,
+        ']' => 57,
+        '}' => 1197,
+        '>' => 25137,
+        _ => 0,
+    }
+}
+
 // replace return type as required by the problem
-fn part1(input: &str) -> i32 {
-    0
+fn part1(input: &str) -> u32 {
+    let mut syntax_score = 0;
+    for line in input.lines() {
+        let mut syntax_checker = vec![];
+
+        for c in line.chars() {
+            match c {
+                '(' | '[' | '{' | '<' => syntax_checker.push(c),
+                ')' | ']' | '}' | '>' => {
+                    if let Some(opening) = syntax_checker.pop() {
+                        if (opening == '(' && c != ')')
+                            || (opening == '[' && c != ']')
+                            || (opening == '{' && c != '}')
+                            || (opening == '<' && c != '>')
+                        {
+                            syntax_score += score(c);
+                        }
+                    }
+                }
+                _ => (),
+            }
+        }
+    }
+
+    syntax_score
 }
 
 // replace return type as required by the problem
