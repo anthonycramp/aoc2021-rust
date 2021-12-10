@@ -69,7 +69,7 @@ mod tests {
     fn test_part2() {
         let test_cases = [TestCase {
             input: TEST_INPUT,
-            expected: 123,
+            expected: 288957,
         }];
         for TestCase { input, expected } in test_cases.iter() {
             assert_eq!(part2(*input), *expected);
