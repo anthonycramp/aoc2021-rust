@@ -57,13 +57,13 @@ impl HeightMap {
         neighbours
     }
 
-    fn find_low_points(&self) -> Vec<u32> {
+    fn find_low_points(&self) -> Vec<(usize, u32)> {
         let mut low_points = vec![];
 
         for (i, v) in self.map.iter().enumerate() {
             let neighbours = self.get_neighbours(i);
             if !neighbours.iter().any(|&v2| v2 <= *v) {
-                low_points.push(*v);
+                low_points.push((i, *v));
             }
         }
 
@@ -75,7 +75,7 @@ impl HeightMap {
 fn part1(input: &str) -> u32 {
     let height_map = HeightMap::from(input);
     let low_points = height_map.find_low_points();
-    low_points.into_iter().map(|v| v + 1).sum::<u32>()
+    low_points.iter().map(|&(_, v)| v + 1).sum::<u32>()
 }
 
 // replace return type as required by the problem
@@ -104,7 +104,7 @@ mod tests {
     fn test_part2() {
         let test_cases = [TestCase {
             input: TEST_INPUT,
-            expected: 123,
+            expected: 1134,
         }];
         for TestCase { input, expected } in test_cases.iter() {
             assert_eq!(part2(*input), *expected);
