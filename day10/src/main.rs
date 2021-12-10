@@ -5,7 +5,7 @@ fn main() {
     println!("Day 10 Part 2: {:?}", part2(INPUT));
 }
 
-fn score(c: char) -> u32 {
+fn corruption_score(c: char) -> u32 {
     match c {
         ')' => 3,
         ']' => 57,
@@ -15,28 +15,40 @@ fn score(c: char) -> u32 {
     }
 }
 
+enum SyntaxCheck {
+    Corrupt(char),
+    Incomplete(Vec<char>),
+}
+
+fn check_syntax(input: &str) -> SyntaxCheck {
+    let mut syntax_checker = vec![];
+    for c in input.chars() {
+        match c {
+            '(' | '[' | '{' | '<' => syntax_checker.push(c),
+            ')' | ']' | '}' | '>' => {
+                if let Some(opening) = syntax_checker.pop() {
+                    if (opening == '(' && c != ')')
+                        || (opening == '[' && c != ']')
+                        || (opening == '{' && c != '}')
+                        || (opening == '<' && c != '>')
+                    {
+                        return SyntaxCheck::Corrupt(c);
+                    }
+                }
+            }
+            _ => panic!("Unknown syntax: {}", c),
+        }
+    }
+    SyntaxCheck::Incomplete(syntax_checker)
+}
+
 // replace return type as required by the problem
 fn part1(input: &str) -> u32 {
     let mut syntax_score = 0;
     for line in input.lines() {
-        let mut syntax_checker = vec![];
-
-        for c in line.chars() {
-            match c {
-                '(' | '[' | '{' | '<' => syntax_checker.push(c),
-                ')' | ']' | '}' | '>' => {
-                    if let Some(opening) = syntax_checker.pop() {
-                        if (opening == '(' && c != ')')
-                            || (opening == '[' && c != ']')
-                            || (opening == '{' && c != '}')
-                            || (opening == '<' && c != '>')
-                        {
-                            syntax_score += score(c);
-                        }
-                    }
-                }
-                _ => (),
-            }
+        match check_syntax(line) {
+            SyntaxCheck::Corrupt(c) => syntax_score += corruption_score(c),
+            _ => (),
         }
     }
 
