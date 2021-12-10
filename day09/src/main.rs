@@ -28,30 +28,30 @@ impl From<&str> for HeightMap {
 }
 
 impl HeightMap {
-    fn get_neighbours(&self, location: usize) -> Vec<u32> {
+    fn get_neighbours(&self, location: usize) -> Vec<(usize, u32)> {
         // neighbours are at -1, +1, -width, and +width
         let mut neighbours = vec![];
 
         if location % self.width != 0 {
             // not at left edge
             if let Some(left) = location.checked_sub(1) {
-                neighbours.push(self.map[left]);
+                neighbours.push((left, self.map[left]));
             }
         }
 
         if let Some(up) = location.checked_sub(self.width) {
-            neighbours.push(self.map[up]);
+            neighbours.push((up, self.map[up]));
         }
 
         if (location + 1) % self.width != 0 {
             // not at right edge
             if location + 1 < self.map.len() {
-                neighbours.push(self.map[location + 1]);
+                neighbours.push((location + 1, self.map[location + 1]));
             }
         }
 
         if location + self.width < self.map.len() {
-            neighbours.push(self.map[location + self.width]);
+            neighbours.push((location + self.width, self.map[location + self.width]));
         }
 
         neighbours
@@ -62,12 +62,40 @@ impl HeightMap {
 
         for (i, v) in self.map.iter().enumerate() {
             let neighbours = self.get_neighbours(i);
-            if !neighbours.iter().any(|&v2| v2 <= *v) {
+            if !neighbours.iter().any(|&(_, v2)| v2 <= *v) {
                 low_points.push((i, *v));
             }
         }
 
         low_points
+    }
+
+    fn find_basin(&self, location: usize) -> Vec<(usize, u32)> {
+        let mut basin = vec![];
+        let mut frontier = vec![location];
+
+        while let Some(exploration_location) = frontier.pop() {
+            basin.push(exploration_location);
+
+            let exploration_val = self.map[exploration_location];
+            let neighbours = self.get_neighbours(exploration_location);
+            for &(neighbour_loc, neighbour_val) in &neighbours {
+                if !basin.contains(&neighbour_loc)
+                    && !frontier.contains(&neighbour_loc)
+                    && neighbour_val != 9
+                    && neighbour_val >= exploration_val
+                {
+                    frontier.push(neighbour_loc);
+                }
+            }
+        }
+
+        let basin: Vec<_> = basin
+            .iter()
+            .map(|&location| (location, self.map[location]))
+            .collect();
+
+        basin
     }
 }
 
@@ -79,8 +107,17 @@ fn part1(input: &str) -> u32 {
 }
 
 // replace return type as required by the problem
-fn part2(input: &str) -> i32 {
-    0
+fn part2(input: &str) -> u32 {
+    let height_map = HeightMap::from(input);
+    let low_points = height_map.find_low_points();
+
+    let mut basins: Vec<_> = low_points
+        .iter()
+        .map(|&(loc, _)| height_map.find_basin(loc).len() as u32)
+        .collect();
+
+    basins.sort_unstable();
+    basins.iter().rev().take(3).product()
 }
 
 #[cfg(test)]
