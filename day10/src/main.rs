@@ -55,7 +55,7 @@ fn part1(input: &str) -> u32 {
     syntax_score
 }
 
-fn autocomplete_score(input: &str) -> u32 {
+fn autocomplete_score(input: &str) -> u64 {
     let mut score = 0;
 
     for c in input.chars() {
@@ -73,9 +73,35 @@ fn autocomplete_score(input: &str) -> u32 {
     score
 }
 
+fn autocomplete(input: &[char]) -> String {
+    let mut autocompletion = String::default();
+
+    for c in input.iter().rev() {
+        match c {
+            '(' => autocompletion += &String::from(')'),
+            '[' => autocompletion += &String::from(']'),
+            '{' => autocompletion += &String::from('}'),
+            '<' => autocompletion += &String::from('>'),
+            _ => (),
+        }
+    }
+    autocompletion
+}
 // replace return type as required by the problem
-fn part2(input: &str) -> i32 {
-    0
+fn part2(input: &str) -> u64 {
+    let mut syntax_scores = vec![];
+    for line in input.lines() {
+        match check_syntax(line) {
+            SyntaxCheck::Incomplete(s) => {
+                let autocompletion = autocomplete(&s);
+                syntax_scores.push(autocomplete_score(&autocompletion));
+            }
+            _ => (),
+        }
+    }
+
+    syntax_scores.sort_unstable();
+    syntax_scores[syntax_scores.len() / 2]
 }
 
 #[cfg(test)]
