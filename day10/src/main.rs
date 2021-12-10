@@ -43,6 +43,24 @@ fn part1(input: &str) -> u32 {
     syntax_score
 }
 
+fn autocomplete_score(input: &str) -> u32 {
+    let mut score = 0;
+
+    for c in input.chars() {
+        score *= 5;
+
+        score += match c {
+            ')' => 1,
+            ']' => 2,
+            '}' => 3,
+            '>' => 4,
+            _ => 0,
+        };
+    }
+
+    score
+}
+
 // replace return type as required by the problem
 fn part2(input: &str) -> i32 {
     0
@@ -73,6 +91,35 @@ mod tests {
         }];
         for TestCase { input, expected } in test_cases.iter() {
             assert_eq!(part2(*input), *expected);
+        }
+    }
+
+    #[test]
+    fn test_autocomplete_score() {
+        let test_cases = [
+            TestCase {
+                input: "}}]])})]",
+                expected: 288957,
+            },
+            TestCase {
+                input: ")}>]})",
+                expected: 5566,
+            },
+            TestCase {
+                input: "}}>}>))))",
+                expected: 1480781,
+            },
+            TestCase {
+                input: "]]}}]}]}>",
+                expected: 995444,
+            },
+            TestCase {
+                input: "])}>",
+                expected: 294,
+            },
+        ];
+        for TestCase { input, expected } in test_cases.iter() {
+            assert_eq!(autocomplete_score(*input), *expected);
         }
     }
 }
